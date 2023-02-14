@@ -1,0 +1,322 @@
+#include<stdc++.h>
+using namespace std;
+// 1.Algorithms 2.Containers 3.Functions 4.Iterators
+
+pair<string,double>  explain_pair();
+//函式:1.make_pair 2.first 3.second 4.tie
+void explain_vector();
+//函式:1.push_back、2.emplace_back，可配合iterator使用3.begin 4.end 5.insert
+//6.size 7.clear 8.swap 9.front 10.back
+void explain_list();
+//用法與vector幾乎一樣，但多了1.push_front 2.emplace_front
+void explain_Deque();
+//用法與vector完全一樣
+void explain_Stack();//LIFO(後進先出)
+//沒有先前的v[0].first有的沒的，只有3種運算:1.push 2.top 3.pop 4.swap
+void explain_Queue();
+//直接push即可，不用像vector一樣還要push_back，功用一樣
+//其餘size、empty用法同Stack
+void explain_priority_Q();
+
+void explain_set();//1.insert 2.emplace 3.find 4.begin 5.end 6.erase 7.count
+//8.lower_bound 9.upper_bound 大原則: 1.排序 2.同一成員只存在一次
+void explain_multiset();//與set差在"成員可以重複"，但一樣有排序
+void explain_unorderedset();//與set差在沒有排序，但有單一性
+
+void explain_map();
+void explain_multimap();
+
+
+int main(){
+	//--------1.pair:了解make_pair、first、second使用--------
+	string n;
+	int a=0;
+	pair<string,double> newone;
+	pair<int,int> asd (2,3);
+	newone =explain_pair(); //了解傳遞方式
+	cout<<"pair:"<< newone.first << "," << newone.second << endl;
+	tie(n,a)=explain_pair();//利用tie取值
+	cout<<"--------------------"<<endl;
+	//--------2.Vector--------
+	explain_vector();cout<<"--------------------"<<endl;
+	//--------3.list--------
+	explain_list();cout<<"--------------------"<<endl;
+	//--------4.Deque--------
+	explain_Deque();cout<<"--------------------"<<endl;
+	//--------5.Stack--------
+	explain_Stack();cout<<"--------------------"<<endl;
+	//--------6.Queue--------
+	explain_Queue();cout<<"--------------------"<<endl;
+	//--------7.pPriority Queue--------
+	explain_priority_Q();cout<<"--------------------"<<endl;
+	//--------8.set---------
+	explain_set();cout<<"--------------------"<<endl;
+	//--------9.multySet---------
+	explain_multiset();cout<<"--------------------"<<endl;
+	//--------10.unorderrdset----------
+	explain_unorderedset();cout<<"--------------------"<<endl;
+	//--------11.Map----------
+	explain_map();cout<<"--------------------"<<endl;
+	//--------12.------------
+
+
+
+	system("pause");
+	return 0;
+}
+ 
+pair<string,double> explain_pair(){
+	pair<string, double> p ("Ray",0.3);
+	//pair<int,int>arr[]={{1,2},{3,4},{5,6}}; //陣列用法怪怪的先跳過
+	return make_pair(p.first,p.second); //內建make_pair創建一個新的pair
+}
+
+void explain_vector(){
+	//2.Vector:可解決陣列固定大小，空間無法改變的問題，可一直增加空間
+	//函式:1.push_back、2.emplace_back，可配合iterator使用3.begin 4.end 5.insert
+	//6.size 7.clear 8.swap 9.front 10.back
+	vector<int> v;
+	//push_back
+	v.push_back(1);//{1} (把1放進去v)
+	//emplace_back
+	v.emplace_back(2);//{1,2} (和push_back用法很像，差別在於{}、())
+
+	//vector< pair<int,int> >、make_pair
+	vector< pair<int,int> > vec;//vector內的pair，>>之間最好要有空格否則讀錯
+	vec.push_back(make_pair(7,8));//利用make_pair在vector內插入pair
+	cout<<"vector:"<<vec[0].first<<","<<vec[0].second<<endl;
+	cout<<"vector的front():"<<v.front()<<endl;//即vector中第一個數
+	cout<<"vector的back():"<<v.back()<<endl;//即vector中最後一個數	
+
+	vector<int>vv(3,100);//會成為3個100如下:{100,100,100}
+	
+	vector<int>v1(5);//會成為{0,0,0,0,0}
+	vector<int>v2=v1;//會把v1傳給v2
+
+	//iterator->begin()
+	vector<int>::iterator it =v.begin();//利用iterator得到第一個數的"位址"給it
+	it++;//v[0]的位址向後移1格即v[1]的"位址"
+	cout<<"vector的iterator取值:"<<*(it)<<endl;//將v[1]位址做間接運算取出值
+
+	//iterator->end()
+	vector<int>::iterator it1 = v.end();//end是指向最後一個數的"右邊"的位址
+	//要注意是最後一個數的"右邊"，而不是做後一個數!!
+	//EX:v為{1,2}，v.end()做完傳給it1是2右邊位子的位址
+
+	////iterator->for
+	for(vector<int>::iterator it=v.begin();it!=v.end();it++){//1.前面好長...
+		cout<<"vector使用迴圈得v內的值:"<<*(it)<<" ";
+	}
+	cout<<endl;
+	for(auto it = v.begin();it!=v.end();it++){//改用auto自動產生型別
+		cout<<*(it)<<" ";
+	}
+	cout<<endl;
+	for(auto it : v){//更簡便的方式，這邊it就不是位址了，auto現在為int
+		cout<<it<<" ";
+	}
+	cout<<endl;
+
+	//erase移除單個
+	v.push_back(7);v.push_back(8);v.push_back(9);//1,2,7,8,9
+	v.erase(v.begin()+1);//由begin抓出v第一位的位址，+1就向後移，然後擦掉
+	for(auto it : v){//1,7,8,9
+		cout<<it<<" ";
+	}
+	cout<<endl<<"2被移除了，測試erase結束"<<endl;
+	
+	//erase移除連續多個 //1,7,8,9
+	v.erase(v.begin()+1,v.begin()+3);//移除第1~2位，不包含第三位!!
+	for(auto it : v){
+		cout<<it<<" ";
+	}
+	cout<<endl<<"7、8被移除了，測試erase結束"<<endl;
+
+	//insert
+	v.insert(v.begin()+1,6);//抓出起始+1位址左方插入
+	for(auto it : v){
+		cout<<it<<" ";
+	}
+	cout<<endl<<"insert插入6，測試結束"<<endl;
+	v.insert(v.begin()+2,2,0);//插入兩個0
+	for(auto it : v){
+		cout<<it<<" ";
+	}
+	cout<<endl<<"insert插入2個0，測試結束"<<endl;
+
+	//copy
+	vector<int>co(2,20);
+	v.insert(v.begin(),co.begin(),co.end());//於起始位置插入兩個20
+	for(auto it : v){
+		cout<<it<<" ";
+	}
+	cout<<endl<<"copy插入2個20，測試結束"<<endl;
+
+	//size
+	cout<<"size="<<v.size()<<endl;
+
+	//pop_back
+	v.pop_back();//刪除最後一個值
+	cout << "pop_back完v值=" <<"";
+	for(auto it : v){
+		cout << it << " ";
+	}
+	cout <<endl;
+	
+	//swap
+	v1.swap(v2);//互換
+
+	//clear
+	v1.clear();//清除vector容器內所有元素
+
+	//empty
+	cout<<v1.empty()<<" "<<v2.empty()<<endl;//以 0 或 1的方式回傳T/F
+}
+
+void explain_list(){//比vector多了push_front、emplace_front
+	//函式同vector:1.push_back、2.emplace_back，可配合iterator使用3.begin  
+	//4.end 5.insert 6.size 7.clear 8.swap 9.front 10.back
+	list<int>ls;
+	ls.push_back(3);//{3}
+	ls.emplace_back(6);//{3,6}
+	ls.push_front(5);//{5,3,6}
+	ls.emplace_front();//{0,5,3,6}
+	cout<<"使用list顯示:";
+	for(auto it : ls){
+		cout<<it<<" ";
+	}
+	cout<<endl;
+}
+
+void explain_Deque(){
+	//使用方式和vector完全一樣
+}
+
+void explain_Stack(){ //LIFO:last in first out(後進先出)
+	//Stack:沒有先前的v[0].first有的沒的，只有3種運算:1.push 2.top 3.pop
+	stack<int>st,st1; //無法用類似(it:st)的迴圈
+	st.push(1);//{1}
+	st.emplace(5);//{5,1}
+	cout<<"Stack.top="<<st.top()<<endl; //最上層是5
+	st.pop(); //移除最上層
+	cout<<"Stack.pop完，最上層="<<st.top()<<endl;
+	cout<<"size="<<st.size()<<"  empty?="<<st.empty()<<endl;
+	st.swap(st1);
+}
+
+void explain_Queue(){//FIFO:First in first out
+	queue<int>q;
+	q.push(1);//{1}
+	q.emplace(2);//{1,2}
+	q.back() += 5;//q內最後一個數+5，{1,7}	
+	cout<<"q.back="<<q.back()<<endl;//{7}
+	q.pop();//pop掉第一個
+	cout<<"pop完之後:q.front="<<q.front()<<endl;
+}
+
+void explain_priority_Q(){//其他size,swap,empty用法都一樣
+	//Max Heap
+	priority_queue<int>pq;
+	pq.push(5);//{5}
+	pq.push(2);//{5,2}
+	pq.push(8);//{8,5,2}
+	pq.emplace(10);//{10,8,5,2}
+	cout<<"pq.top="<<pq.top()<<endl;
+	pq.pop();//{8,5,2}
+	cout<<"pop完後，pq.top="<<pq.top()<<endl;
+
+	//Min Heap
+	priority_queue<int,vector<int>,greater<int>> mpq;
+	mpq.push(5);//{5}
+	mpq.push(2);//{2,5}}
+	pq.push(8);//{2,5,8}
+	pq.emplace(10);//{2,5,8,10}
+	cout<<"Min Heap:"<<mpq.top()<<endl;//{2}
+}
+
+void explain_set(){//大原則: 1.排序 2.只存在一次
+	set<int>st;
+	st.insert(1);//{1}
+	st.emplace(2);//{1,2}
+	st.insert(2);//{1,2} (2只出現一次)
+	st.insert(4);//{1,2,4}
+	st.insert(3);//{1,2,3,4} (會進行排序)
+	st.insert(5);//{1,2,3,4,5}
+
+	auto it = st.find(3); //此時的it為指向3的"位址"
+	cout<<"it="<<*(it)<<endl;
+	auto it1 = st.find(6);//找不到這個值，會指向集合中最後一個成員的右邊位址
+	//也就是st.end()
+
+	st.erase(2); //{1,3,4,5}
+	st.erase(it);//{1,4,5} (也可以直接把位址擦掉)
+
+	it=st.find(1);
+	auto it2 = st.find(5);
+	cout<<"未做erase動作前st=:";
+	for(auto i =st.begin();i!= st.end();i++){
+		cout<<*(i)<<" ";
+	}
+	cout<<endl;
+	st.erase(it,it2);//{1,4,5} 擦1的位址~5前一位的位址(不含5)，即[First,Last)
+	cout<<"做完erase動作後st=:";
+	for(auto i : st){
+		cout<<i<<" ";
+	}
+	cout<<endl;
+	
+	int cnt = st.count(1);//計數，不是 0 就是 1 ，確認成員存在與否用
+
+	auto it3 = st.lower_bound(2);
+	auto it4 = st.upper_bound(2);
+}
+
+void explain_multiset(){//與set差在"成員可以重複"，但一樣有排序
+	multiset<int>ms;
+	ms.insert(1);//{1}
+	ms.insert(1);//{1,1}
+	ms.insert(1);//{1,1,1}
+	
+	int cnt = ms.count(1);//計算有幾個1
+	ms.erase(ms.find(1));//找出第一個1的位址
+	//ms.erase(ms.find(1),ms.find(1)+2);//這個語法會錯，先不理她好了
+	
+	ms.erase(1);//{}全刪
+}
+
+void explain_unorderedset(){//與set差在沒有排序，但有單一性(怪怪的不理她)
+	//unordered_set<int>st;
+}
+
+void explain_map(){//包含key、value，key獨一無二且有"排序"，value可重複
+	map<int,int>mp; //key為整數，value為整數
+	map<int,pair<int,int>>mpp;//key為整數，value為pair
+	map<pair<int,int>,int>mppp;//key為pair，value為整數
+
+	mp[1]=2;//{{1,2}}
+	mp.emplace(3,1);//{{1,2},{3,1}}
+	mp.insert(make_pair(2,4));//{{1,2},{2,4},{3,1}} 會將key排序
+
+	mppp[make_pair(2,3)]=10;//{{2,3},10}
+	
+	for(auto it : mp){
+		cout<<"map="<<it.first<<","<<it.second<<endl;//依序為1,2、2,4、3,1
+	}
+
+	cout<<mp[1]<<endl;//這邊注意mp[1]的1是指該map的第一個成員，和矩陣從0開始不一樣
+	cout<<mp[4]<<endl;//沒這個東西所以是0
+
+	auto it = mp.find(2);//找到map第二個成員{2,4}的位址
+	cout << it->second<<endl;//指向該位址的第二個值
+
+	auto it1 = mp.find(5);//沒有這個東西，itt = mp.end()
+
+	auto it2 = mp.lower_bound(2);
+	auto it3 = mp.upper_bound(3);
+
+	//其他erase、swap、size、empty跟前面都一樣 
+}
+
+void explain_multimap(){//
+	
+}
