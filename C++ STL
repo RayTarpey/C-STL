@@ -1,32 +1,39 @@
 #include<stdc++.h>
 using namespace std;
 // 1.Algorithms 2.Containers 3.Functions 4.Iterators
+int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+//一般容器都會call by reference去傳值，以vector為例，他不能像矩陣一樣轉為位址
 
 pair<string,double>  explain_pair();
-//函式:1.make_pair 2.first 3.second 4.tie
+//函式:1.make_pair 2.first 3.second 4.tie(只有pair、map有first、second用法)
 void explain_vector();
 //函式:1.push_back、2.emplace_back，可配合iterator使用3.begin 4.end 5.insert
-//6.size 7.clear 8.swap 9.front 10.back
+//6.size 7.clear 8.swap 9.front 10.back 11.erase 12.pop_back 13.empty
+//14.clear 15.reverse(反向) 16.sort
 void explain_list();
 //用法與vector幾乎一樣，但多了1.push_front 2.emplace_front
 void explain_Deque();
 //用法與vector完全一樣
+
 void explain_Stack();//LIFO(後進先出)
-//沒有先前的v[0].first有的沒的，只有3種運算:1.push 2.top 3.pop 4.swap
-void explain_Queue();
+//只有3種運算:1.push 2.top 3.pop 4.swap
+void explain_Queue();//FIFO(先進先出)，多 back
 //直接push即可，不用像vector一樣還要push_back，功用一樣
 //其餘size、empty用法同Stack
 void explain_priority_Q();
 
-void explain_set();//1.insert 2.emplace 3.find 4.begin 5.end 6.erase 7.count
+void explain_set();//1.insert 2.emplace 3.find 4.count 5.begin 6.end 7.erase
 //8.lower_bound 9.upper_bound 大原則: 1.排序 2.同一成員只存在一次
 void explain_multiset();//與set差在"成員可以重複"，但一樣有排序
 void explain_unorderedset();//與set差在沒有排序，但有單一性
 
-void explain_map();
-void explain_multimap();
+void explain_map();//單一key，要排序 (1.find 2.insert 3.emplace
+void explain_multimap();//與map不同在於可多個key，但一樣要排序
+void explain_unorderedmap();//單一key，沒有排序
 
-
+void explain_sort();
 int main(){
 	//--------1.pair:了解make_pair、first、second使用--------
 	string n;
@@ -58,26 +65,25 @@ int main(){
 	//--------11.Map----------
 	explain_map();cout<<"--------------------"<<endl;
 	//--------12.------------
-
-
-
+	explain_sort();
 	system("pause");
 	return 0;
 }
- 
+
 pair<string,double> explain_pair(){
 	pair<string, double> p ("Ray",0.3);
 	//pair<int,int>arr[]={{1,2},{3,4},{5,6}}; //陣列用法怪怪的先跳過
 	return make_pair(p.first,p.second); //內建make_pair創建一個新的pair
 }
 
-void explain_vector(){
+/// Sequence containers--順序容器(不可直接用find，要用標準庫std::find)///
+void explain_vector(){//Vector除非使用insert可選擇插入位置，否則只能從後面插
 	//2.Vector:可解決陣列固定大小，空間無法改變的問題，可一直增加空間
 	//函式:1.push_back、2.emplace_back，可配合iterator使用3.begin 4.end 5.insert
-	//6.size 7.clear 8.swap 9.front 10.back
+	//6.size 7.clear 8.swap 9.front 10.back 11.data 12.capacity(當前空間大小)
 	vector<int> v;
-	//push_back
-	v.push_back(1);//{1} (把1放進去v)
+	//push_back(放尾巴)(不能放前面:若有一百萬筆資料，不可能每個都向後推)
+	v.push_back(1);//{1} (把1放進去v的尾巴)
 	//emplace_back
 	v.emplace_back(2);//{1,2} (和push_back用法很像，差別在於{}、())
 
@@ -87,6 +93,14 @@ void explain_vector(){
 	cout<<"vector:"<<vec[0].first<<","<<vec[0].second<<endl;
 	cout<<"vector的front():"<<v.front()<<endl;//即vector中第一個數
 	cout<<"vector的back():"<<v.back()<<endl;//即vector中最後一個數	
+
+	//reverse(讓裡面內容顛倒)
+	reverse(v.begin(),v.end());
+	cout<<"vector的front():"<<v.front()<<endl;
+	cout<<"vector的back():"<<v.back()<<endl;
+
+	//sort(排序)
+	sort(v.begin(),v.end());
 
 	vector<int>vv(3,100);//會成為3個100如下:{100,100,100}
 	
@@ -103,13 +117,68 @@ void explain_vector(){
 	//要注意是最後一個數的"右邊"，而不是做後一個數!!
 	//EX:v為{1,2}，v.end()做完傳給it1是2右邊位子的位址
 
+	//find(用標準庫:循序查找)
+	auto addr = std::find(v.begin(),v.end(),1); //要找位址，一定要取值後再取址
+	cout<<"&*addr=============="<<&*addr<<",&*v.begin="<<&*v.begin()<<endl;
+
+	//bsearch(二分查找法):---------------------------------------------------{
+	//一定要先排序過，否則搜索失敗，因compare回傳值(+ / - / 0)
+	//會影響向右或向左查找的方向，負的表示目標可能在b左邊，反之亦然，0則表示找到
+	sort(v.begin(),v.end());//一定要先排序過，否則該向左或向右會判斷錯
+	int target=2;//目標(將其位址作為第一引數)
+	//第二引數為容器起始位置的位址，第三為容器大小，第四為每個元素大小
+	//第五個為比較的函數，函數中第一個引數為目標的位址，第二引數為容器內元素位址
+	//目標位址取值後減去容器中間元素的值(反覆進行)，並依照回傳值的正負值，
+	//向做或向右尋找(每次都能減少一半的搜尋數量)，如果為0就是找到了
+
+	//其中bsearch的result為目標的位址
+	int* result = (int*)bsearch(&target,(v.data()),v.size(),sizeof(int),compare);
+	if(result!=NULL){
+		cout<<"find the targrt successful where addr = "<<result<<endl;
+	}
+	else{
+		cout<<"failed to find the tarrget"<<endl;
+	}
+	//bsearch(二分查找法):---------------------------------------------------}
+
+	//lower_bound:
+	//函數會在"有序序列"中， [first, last) 的範圍內進行查找，並返回一個迭代器，
+	//該迭代器指向第一個不小於 target 的元素位置，即"大於等於target" 的元素位置
+	//如果 target大於所有元素，則返回 last，以整個容器看就是end()的意思
+	float targ=1.5;
+	auto itl = std::lower_bound(v.begin(),v.end(),targ);	
+	if(itl!=v.end() && *itl==targ){
+		cout<<"剛好等於target "<<targ<<"的值存在"<<endl;
+	}
+	else if(itl!=v.end()){//表示有大於等於target的數
+		cout<<"大於等於target "<<targ<<"的數="<<*itl<<"，位址="<<&*itl<<"，位於第"<<itl-v.begin()+1<<"個"<<endl;
+	}
+	else{
+		cout<<"大於等於target的數，不存在於容器中"<<endl;
+	}
+
+	//upper_bound:
+	//回傳的是第一个大於target的元素位置，如果不存在這樣的元素，則回傳 last
+	targ=1;
+	auto itll = std::upper_bound(v.begin(),v.end(),targ);
+	if(itll!=v.end()){
+		cout<<"大於target "<<targ<<"的第一個元素="<<*itll<<endl;
+	}
+	else{
+		cout<<"沒有大於target的元素"<<endl;
+	}
+
 	////iterator->for
 	for(vector<int>::iterator it=v.begin();it!=v.end();it++){//1.前面好長...
 		cout<<"vector使用迴圈得v內的值:"<<*(it)<<" ";
 	}
 	cout<<endl;
+	
+	//v內元素有自己的實際位址，把位址傳給it後，*it是取該位址位址指向的值
+	//&(*it)是又對其取得該值的位址，得到的是元素實際位址
+	//而&it則是取得迭代器(一個位址)的位址
 	for(auto it = v.begin();it!=v.end();it++){//改用auto自動產生型別
-		cout<<*(it)<<" ";
+		cout<<"*it="<<*(it)<<" "<<"元素位址:&it="<<&(*it)<<",迭代器(位址)的位址="<<&it<<endl;
 	}
 	cout<<endl;
 	for(auto it : v){//更簡便的方式，這邊it就不是位址了，auto現在為int
@@ -166,6 +235,12 @@ void explain_vector(){
 	//swap
 	v1.swap(v2);//互換
 
+	//data(第一個元素的位址，和begin應該一樣意思)
+	cout<<"v.data()="<<v.data()<<","<<&(*v.begin())<<endl;
+
+	//cpapcity
+	cout<<"v.capacity()="<<v.capacity()<<endl;
+	
 	//clear
 	v1.clear();//清除vector容器內所有元素
 
@@ -173,7 +248,7 @@ void explain_vector(){
 	cout<<v1.empty()<<" "<<v2.empty()<<endl;//以 0 或 1的方式回傳T/F
 }
 
-void explain_list(){//比vector多了push_front、emplace_front
+void explain_list(){//指針的"雙向鍊表"，比vector多了push_front、emplace_front
 	//函式同vector:1.push_back、2.emplace_back，可配合iterator使用3.begin  
 	//4.end 5.insert 6.size 7.clear 8.swap 9.front 10.back
 	list<int>ls;
@@ -188,8 +263,8 @@ void explain_list(){//比vector多了push_front、emplace_front
 	cout<<endl;
 }
 
-void explain_Deque(){
-	//使用方式和vector完全一樣
+void explain_Deque(){//FIFO:First in first out
+	//使用方式和vector一樣，差在兩端可進可出
 }
 
 void explain_Stack(){ //LIFO:last in first out(後進先出)
@@ -234,7 +309,8 @@ void explain_priority_Q(){//其他size,swap,empty用法都一樣
 	cout<<"Min Heap:"<<mpq.top()<<endl;//{2}
 }
 
-void explain_set(){//大原則: 1.排序 2.只存在一次
+/// Associative containers--關聯容器(用key找value)(可直接使用find)(大量查找)///
+void explain_set(){//大原則: 1.排序 2.只存在一次(set的key就是value)
 	set<int>st;
 	st.insert(1);//{1}
 	st.emplace(2);//{1,2}
@@ -271,7 +347,7 @@ void explain_set(){//大原則: 1.排序 2.只存在一次
 	auto it4 = st.upper_bound(2);
 }
 
-void explain_multiset(){//與set差在"成員可以重複"，但一樣有排序
+void explain_multiset(){//與set差在"key可以重複"，但一樣有排序
 	multiset<int>ms;
 	ms.insert(1);//{1}
 	ms.insert(1);//{1,1}
@@ -284,11 +360,11 @@ void explain_multiset(){//與set差在"成員可以重複"，但一樣有排序
 	ms.erase(1);//{}全刪
 }
 
-void explain_unorderedset(){//與set差在沒有排序，但有單一性(怪怪的不理她)
-	//unordered_set<int>st;
+void explain_unorderedset(){//與set差在:key有單一性，但沒排序(不定序容器)
+	//unordered_set<int>st; //C++11才出的所以報錯
 }
 
-void explain_map(){//包含key、value，key獨一無二且有"排序"，value可重複
+void explain_map(){//包含key、value，key獨一無二且有"排序"，value隨便給
 	map<int,int>mp; //key為整數，value為整數
 	map<int,pair<int,int>>mpp;//key為整數，value為pair
 	map<pair<int,int>,int>mppp;//key為pair，value為整數
@@ -303,20 +379,87 @@ void explain_map(){//包含key、value，key獨一無二且有"排序"，value�
 		cout<<"map="<<it.first<<","<<it.second<<endl;//依序為1,2、2,4、3,1
 	}
 
-	cout<<mp[1]<<endl;//這邊注意mp[1]的1是指該map的第一個成員，和矩陣從0開始不一樣
+	cout<<mp[1]<<endl;//這邊注意mp[1]的1是指該map的key，和矩陣從0開始不一樣
 	cout<<mp[4]<<endl;//沒這個東西所以是0
 
 	auto it = mp.find(2);//找到map第二個成員{2,4}的位址
 	cout << it->second<<endl;//指向該位址的第二個值
 
-	auto it1 = mp.find(5);//沒有這個東西，itt = mp.end()
-
+	auto it1 = mp.find(5);//沒有這個key，itt = mp.end()
+	cout<<"it->second="<<it->second<<endl;
+	cout<<"(*it).second="<<(*it).second<<"一定要()否則報錯"<<endl;
 	auto it2 = mp.lower_bound(2);
 	auto it3 = mp.upper_bound(3);
 
 	//其他erase、swap、size、empty跟前面都一樣 
+
+	//技巧1:訪問不存在的key時，會自動創建一個新的key，並將其value初始化為0
+	vector<int>nums;
+	map<int,int>mmp;
+	nums.push_back(8);//{8} 從右側插入
+	nums.emplace_back(2);//{8,2} 從右側插入
+	nums.insert(nums.begin(),7);//{7,8,2}從最左側插入
+
+	for (int i = 0; i < nums.size(); i++) {
+        mmp[nums[i]]++;	//訪問不存在的key會自行新增，直接運算會對value值做用
+		cout<<"nums["<<i<<"]="<<nums[i]<<" ";
+    }cout<<endl;
+	if (mmp.find(7)->first==7) {
+		cout<<"mpp[7]的value="<<mmp.find(7)->second<<endl;
+	}
+
+	mmp[7]++;//提出來也能直接對該key的value直接做運算!!
+	cout<<"mmp[7]提出來++完後="<<mmp.find(7)->second<<endl;
+	mmp[7]=9;
+	cout<<"mmp[7]直接改值="<<mmp.find(7)->second<<endl;
 }
 
-void explain_multimap(){//
-	
+void explain_multimap(){//與map不同在於可多個key，但一樣要排序
+	multimap<int,int>mp;
+}
+
+void explain_unorderedmap(){//俗稱哈希表，單一key，沒排序(不定序容器)
+	//unordered_map<int,int>mp; //C++11才出的所以報錯
+}
+
+void explain_sort(){//sort排序方法:
+vector<int> vv;
+vv.push_back(7);//{7}
+vv.emplace_back(2);//{7,2}
+vv.insert(vv.begin(),3);//{3,7,2}
+
+//1.最簡單的排序
+sort(vv.begin(), vv.end());
+
+//2.自定義排序
+struct cmp {//自定義的排序方式(可簡化)
+    bool operator()(const int& a, const int& b) {//使用參考call by reference
+        return a > b;
+    }
+};
+sort(vv.begin(), vv.end(), cmp());
+//--------------用lambda表達式當作第三個參數傳進去簡化---------------
+sort(vv.begin(), vv.end(),[](const int &a ,int &b){//(參考)call by reference
+	return a > b;
+});
+
+//3.對pair進行排序(搭配lambda表達式當作第三個參數傳進去簡化)
+//vector<pair<int, int>> vec = {{1, 3}, {2, 2}};//如果不是C++11以後的會報錯
+vector<pair<int,int>>vvv;
+vvv.push_back(make_pair(2,3));//{(2,3)}
+vvv.emplace_back(make_pair(4,5));//{(2,3),(4,5)}
+vvv.insert(vvv.begin(),make_pair(7,8));//{(7,8),(2,3),(4,5)}
+
+cout<<"由大到小，排序value值前的vvv:";
+for(auto i : vvv){
+	cout<<i.first<<","<<i.second<<" ";
+}cout<<endl;
+sort(vvv.begin(),vvv.end(),[](pair<int,int> &a,pair<int,int>&b){//記起來!!
+	return a.second > b.second;
+});
+cout<<"由大到小，排序value值後的vvv:";
+for(auto i : vvv){
+	cout<<i.first<<","<<i.second<<" ";
+}cout<<endl;
+
 }
