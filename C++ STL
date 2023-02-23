@@ -86,6 +86,9 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 	v.push_back(1);//{1} (把1放進去v的尾巴)
 	//emplace_back
 	v.emplace_back(2);//{1,2} (和push_back用法很像，差別在於{}、())
+	
+	//快速隨機訪問
+	cout<<"快速隨機訪問v[1]="<<v[1]<<endl;
 
 	//vector< pair<int,int> >、make_pair
 	vector< pair<int,int> > vec;//vector內的pair，>>之間最好要有空格否則讀錯
@@ -116,8 +119,8 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 	vector<int>::iterator it1 = v.end();//end是指向最後一個數的"右邊"的位址
 	//要注意是最後一個數的"右邊"，而不是做後一個數!!
 	//EX:v為{1,2}，v.end()做完傳給it1是2右邊位子的位址
-
-	//find(用標準庫:循序查找)
+	
+	//find(用標準庫:循序查找)(不支持:v.find(1);)
 	auto addr = std::find(v.begin(),v.end(),1); //要找位址，一定要取值後再取址
 	cout<<"&*addr=============="<<&*addr<<",&*v.begin="<<&*v.begin()<<endl;
 
@@ -141,7 +144,7 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 	}
 	//bsearch(二分查找法):---------------------------------------------------}
 
-	//lower_bound:
+	//lower_bound:(快速查找之一)
 	//函數會在"有序序列"中， [first, last) 的範圍內進行查找，並返回一個迭代器，
 	//該迭代器指向第一個不小於 target 的元素位置，即"大於等於target" 的元素位置
 	//如果 target大於所有元素，則返回 last，以整個容器看就是end()的意思
@@ -157,7 +160,7 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 		cout<<"大於等於target的數，不存在於容器中"<<endl;
 	}
 
-	//upper_bound:
+	//upper_bound:(快速查找之一)
 	//回傳的是第一个大於target的元素位置，如果不存在這樣的元素，則回傳 last
 	targ=1;
 	auto itll = std::upper_bound(v.begin(),v.end(),targ);
@@ -269,7 +272,7 @@ void explain_list(){//指針的"雙向鍊表"，多了push_front、emplace_front
 		cout<<it<<" ";
 	}
 	cout<<endl;
-	sort(ls.begin(),ls.end());
+	//sort(ls.begin(),ls.end());//會出錯，因鍊表不支援隨機訪問，只能ls.sort()
 }
 
 void explain_Deque(){//FIFO:First in first out
@@ -476,7 +479,7 @@ for(auto i : vvv){
 //大致歸納:
 
 //快速查找->find()、 lower_bound()、upper_bound()，都是基於二分查找演算法實現
-//快速隨機訪問->使用下標[]訪問元素
+//隨機訪問->用下標[]訪問元素，只要不支援就不能用STL標準庫的sort(可以用自己的)
 
 //平衡樹容器:(set/map/multiset/multimap)
 //1. set/map：支援"快速查找"、插入/刪除，自動排序，key唯一，[不支援隨機訪問"]
@@ -492,8 +495,8 @@ for(auto i : vvv){
 //哈希表:(unordered_set、unordered_map)
 //key"無排序"但仍"唯一"，其餘與平衡樹相同
 
-//1. vector: [支持"快速隨機訪問"]+尾部插入/刪除，中間插入/刪除代價大
-//2. deque:支援隨機訪問、首尾插入、刪除，但是在中間插入、刪除操作代價較大
+//1. vector: [支援"快速隨機訪問"]+尾部插入/刪除，中間插入/刪除代價大
+//2. deque:[支援隨機訪問]、首尾插入、刪除，但是在中間插入、刪除操作代價較大
 //3. list: 支援在"任意位置的插入、刪除"，["不支持隨機訪問"]
 //4. Linked List::鏈表的元素在內存中不是連續存儲的，只能通過遍歷來訪問元素，
 //	 插入和刪除元素只需要修改相鄰節點的指針，時間複雜度是 O(1)
