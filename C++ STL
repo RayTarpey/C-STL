@@ -99,7 +99,7 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 	cout<<"vector的front():"<<v.front()<<endl;
 	cout<<"vector的back():"<<v.back()<<endl;
 
-	//sort(排序)
+	//sort(並非容器本身的排序，不像list自己就有，可以ls.sort()，vector不能)
 	sort(v.begin(),v.end());
 
 	vector<int>vv(3,100);//會成為3個100如下:{100,100,100}
@@ -248,7 +248,7 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 	cout<<v1.empty()<<" "<<v2.empty()<<endl;//以 0 或 1的方式回傳T/F
 }
 
-void explain_list(){//指針的"雙向鍊表"，比vector多了push_front、emplace_front
+void explain_list(){//指針的"雙向鍊表"，多了push_front、emplace_front、sort
 	//函式同vector:1.push_back、2.emplace_back，可配合iterator使用3.begin  
 	//4.end 5.insert 6.size 7.clear 8.swap 9.front 10.back
 	list<int>ls;
@@ -261,6 +261,15 @@ void explain_list(){//指針的"雙向鍊表"，比vector多了push_front、empl
 		cout<<it<<" ";
 	}
 	cout<<endl;
+
+	//此處的sort不像vector一樣，使用的是全局標準庫，而是容器本身帶有的排序
+	//如果容器本身有sort，再怎麼樣都要用容器的，因為比較快
+	ls.sort();//{0,3,5,6} 容器本身的sort
+		for(auto it : ls){
+		cout<<it<<" ";
+	}
+	cout<<endl;
+	sort(ls.begin(),ls.end());
 }
 
 void explain_Deque(){//FIFO:First in first out
@@ -463,3 +472,40 @@ for(auto i : vvv){
 }cout<<endl;
 
 }
+
+//大致歸納:
+
+//快速查找->find()、 lower_bound()、upper_bound()，都是基於二分查找演算法實現
+//快速隨機訪問->使用下標[]訪問元素
+
+//平衡樹容器:(set/map/multiset/multimap)
+//1. set/map：支援"快速查找"、插入/刪除，自動排序，key唯一，[不支援隨機訪問"]
+//2. multiset/multimap：key允許重複，其他和set/map一樣
+//	 強調排序的原因:想想二分查找法一定要排序，它可以在O（log n）的時間複雜度，
+//	 進行頻繁的插入、刪除、查找，但"[不支援隨機訪問"]
+//   [只能"順序地訪問"]元素，[不能通過下標或指定位置來訪問]元素
+//   其實紅黑樹是支援隨機訪問的，只是set、map不行!!
+//如果需要支援隨機訪問的平衡樹，可以用 (vector + map) 的結合，
+//   將key存儲在 vector，同時用 map 維護每個key值在 vector 中的下標
+//   這樣就可以通過下標快速訪問元素了   
+
+//哈希表:(unordered_set、unordered_map)
+//key"無排序"但仍"唯一"，其餘與平衡樹相同
+
+//1. vector: [支持"快速隨機訪問"]+尾部插入/刪除，中間插入/刪除代價大
+//2. deque:支援隨機訪問、首尾插入、刪除，但是在中間插入、刪除操作代價較大
+//3. list: 支援在"任意位置的插入、刪除"，["不支持隨機訪問"]
+//4. Linked List::鏈表的元素在內存中不是連續存儲的，只能通過遍歷來訪問元素，
+//	 插入和刪除元素只需要修改相鄰節點的指針，時間複雜度是 O(1)
+//5. set 和 map:支持"快速插入"、"刪除"、"查找"元素，["不支持隨機訪問"]
+
+//容器選用技巧:
+//數據排序:選vector、deque、list使用STL的排序，set、map內部排序
+//頻繁插入、刪除:用lsit性能最好，set、map也可但性能比list差一點
+//剔除重複元素:用set、map
+//數據統計: 用序列容器，如vector、 deque、 list，處理計數/和/平均/中位數... 
+//     accumulate， count， count_if， accumulate， partial_sum， nth_element
+//總之，如果需要快速隨機訪問，就選擇支持隨機訪問的容器，如vector、deque、array
+//如果需要在任意位置插入、刪除元素，就選擇序列容器如list、forward_list
+//如果需要有序、唯一的元素，選關聯容器，如set、map
+//如果需要無序、唯一的元素，選無序關聯容器，如unordered_set、unordered_map
