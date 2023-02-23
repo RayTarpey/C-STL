@@ -487,7 +487,7 @@ for(auto i : vvv){
 //   其實紅黑樹是支援隨機訪問的，只是set、map不行!!
 //如果需要支援隨機訪問的平衡樹，可以用 (vector + map) 的結合，
 //   將key存儲在 vector，同時用 map 維護每個key值在 vector 中的下標
-//   這樣就可以通過下標快速訪問元素了   
+//   這樣就可以通過下標快速訪問元素了，EX.map<string,vector<string>> mp 
 
 //哈希表:(unordered_set、unordered_map)
 //key"無排序"但仍"唯一"，其餘與平衡樹相同
