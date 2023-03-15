@@ -8,7 +8,7 @@ int compare(const void* a, const void* b) {
 
 pair<string,double>  explain_pair();
 //函式:1.make_pair 2.first 3.second 4.tie(只有pair、map有first、second用法)
-void explain_vector();
+void explain_vector();//兩倍擴充:"1"放1->"2"放2->擴充成"4"放3,4->擴充成8放5678
 //函式:1.push_back、2.emplace_back，可配合iterator使用3.begin 4.end 5.insert
 //6.size 7.clear 8.swap 9.front 10.back 11.erase 12.pop_back 13.empty
 //14.clear 15.reverse(反向) 16.sort
@@ -86,9 +86,9 @@ void explain_vector(){//Vector除非使用insert可選擇插入位置，否則�
 	v.push_back(1);//{1} (把1放進去v的尾巴)
 	//emplace_back
 	v.emplace_back(2);//{1,2} (和push_back用法很像，差別在於{}、())
-	
-	//快速隨機訪問
-	cout<<"快速隨機訪問v[1]="<<v[1]<<endl;
+
+	//快速隨機訪問(從0開始算起的)
+	cout<<"快速隨機訪問第二個元素v[1]="<<v[1]<<endl;
 
 	//vector< pair<int,int> >、make_pair
 	vector< pair<int,int> > vec;//vector內的pair，>>之間最好要有空格否則讀錯
@@ -275,15 +275,37 @@ void explain_list(){//指針的"雙向鍊表"，多了push_front、emplace_front
 	//sort(ls.begin(),ls.end());//會出錯，因鍊表不支援隨機訪問，只能ls.sort()
 }
 
-void explain_Deque(){//FIFO:First in first out
-	//使用方式和vector一樣，差在兩端可進可出
+void explain_Deque(){//雙進雙出(Deque同時涵蓋了Stack、Queue的功能，可用迭代器)
+	//使用方式和vector一樣，差在兩端可進可出，位子放滿後每次擴充一個buffer
+	//比起vector兩倍擴充省下很多記憶體
+	deque<int> dq;
+	dq.push_back(7); //末尾添加7  {7}
+	dq.push_front(3); //開頭添加3 {3,7}
+
+	int b = dq[1]; // 訪問下標為 1 的元素，即第二個，{7}
+
+	auto it = dq.begin() + 1;
+    cout << *it << endl; // 1
+
+	dq.pop_back(); // 末尾删除一个元素
+	dq.pop_front(); // 開頭删除一个元素
+	
+	int size = dq.size();
+	bool isEmpty = dq.empty(); // 判断是否為空
+	std::find(dq.begin(),dq.end(),1);//使用全局的find
+	sort(dq.begin(),dq.end());//本身沒sort，要用全局的sort()
+
+	for (auto rit = dq.rbegin(); rit != dq.rend(); ++rit) {
+        std::cout << *rit << " ";
+    }
 }
 
-void explain_Stack(){ //LIFO:last in first out(後進先出)
-	//Stack:沒有先前的v[0].first有的沒的，只有3種運算:1.push 2.top 3.pop
+void explain_Stack(){ //LIFO:last in first out(後進先出)(不能使用迭代器)
+	//(想成一個罐子，後放進去的，會被先碰到拿出來)
+	//Stack:沒有支援隨機訪問，只有3種運算:1.push 2.top 3.pop
 	stack<int>st,st1; //無法用類似(it:st)的迴圈
 	st.push(1);//{1}
-	st.emplace(5);//{5,1}
+	st.emplace(5);//{5,1} 從左邊塞
 	cout<<"Stack.top="<<st.top()<<endl; //最上層是5
 	st.pop(); //移除最上層
 	cout<<"Stack.pop完，最上層="<<st.top()<<endl;
@@ -291,10 +313,11 @@ void explain_Stack(){ //LIFO:last in first out(後進先出)
 	st.swap(st1);
 }
 
-void explain_Queue(){//FIFO:First in first out
+void explain_Queue(){//FIFO:First in first out(先進先出)(不能使用迭代器)
+	//(想成左邊被封住，)
 	queue<int>q;
 	q.push(1);//{1}
-	q.emplace(2);//{1,2}
+	q.emplace(2);//{1,2} 從右邊塞
 	q.back() += 5;//q內最後一個數+5，{1,7}	
 	cout<<"q.back="<<q.back()<<endl;//{7}
 	q.pop();//pop掉第一個
@@ -357,22 +380,25 @@ void explain_set(){//大原則: 1.排序 2.只存在一次(set的key就是value)
 
 	auto it3 = st.lower_bound(2);
 	auto it4 = st.upper_bound(2);
+
+	st.clear(); // 移除所有元素
 }
 
-void explain_multiset(){//與set差在"key可以重複"，但一樣有排序
-	multiset<int>ms;
+void explain_multiset(){//與set差在"key可以重複"，但一樣有排序(沒push什麼的)
+	multiset<int>ms;//用紅黑樹寫的(不可用下標[])
 	ms.insert(1);//{1}
 	ms.insert(1);//{1,1}
 	ms.insert(1);//{1,1,1}
 	
 	int cnt = ms.count(1);//計算有幾個1
-	ms.erase(ms.find(1));//找出第一個1的位址
+	ms.erase(ms.find(1));//找出第一個1的位址(容器本身就有find可以用，會比較快)
 	//ms.erase(ms.find(1),ms.find(1)+2);//這個語法會錯，先不理她好了
 	
 	ms.erase(1);//{}全刪
 }
 
 void explain_unorderedset(){//與set差在:key有單一性，但沒排序(不定序容器)
+	//用hashtable寫的(哈希表)
 	//unordered_set<int>st; //C++11才出的所以報錯
 }
 
@@ -381,21 +407,22 @@ void explain_map(){//包含key、value，key獨一無二且有"排序"，value�
 	map<int,pair<int,int>>mpp;//key為整數，value為pair
 	map<pair<int,int>,int>mppp;//key為pair，value為整數
 
-	mp[1]=2;//{{1,2}}
+	//(居然可用下標運算[]，想成左邊是key，右邊是value的值)
+	mp[1]=2;//{{1,2}}//這邊注意mp[1]的1是指該map的key
 	mp.emplace(3,1);//{{1,2},{3,1}}
 	mp.insert(make_pair(2,4));//{{1,2},{2,4},{3,1}} 會將key排序
-
+	//mp.insert(pair<int,int>(1,2)); //insert也可用這個寫法
 	mppp[make_pair(2,3)]=10;//{{2,3},10}
 	
 	for(auto it : mp){
 		cout<<"map="<<it.first<<","<<it.second<<endl;//依序為1,2、2,4、3,1
 	}
 
-	cout<<mp[1]<<endl;//這邊注意mp[1]的1是指該map的key，和矩陣從0開始不一樣
+	cout<<mp[1]<<endl;//這邊注意mp[1]的1是指該map的key，和array 或vector不一樣
 	cout<<mp[4]<<endl;//沒這個東西所以是0
 
 	auto it = mp.find(2);//找到map第二個成員{2,4}的位址
-	cout << it->second<<endl;//指向該位址的第二個值
+	cout << it->second<<","<<(*it).second<<endl;//指向該位址的第二個值
 
 	auto it1 = mp.find(5);//沒有這個key，itt = mp.end()
 	cout<<"it->second="<<it->second<<endl;
@@ -426,11 +453,11 @@ void explain_map(){//包含key、value，key獨一無二且有"排序"，value�
 	cout<<"mmp[7]直接改值="<<mmp.find(7)->second<<endl;
 }
 
-void explain_multimap(){//與map不同在於可多個key，但一樣要排序
-	multimap<int,int>mp;
+void explain_multimap(){//與map不同在於可多個key，但一樣要排序(不可用下標[])
+	multimap<int,int>mp;//用紅黑樹寫的
 }
 
-void explain_unorderedmap(){//俗稱哈希表，單一key，沒排序(不定序容器)
+void explain_unorderedmap(){//用hashtable寫的(哈希表)，單一key，沒排序(不定序容器)
 	//unordered_map<int,int>mp; //C++11才出的所以報錯
 }
 
@@ -512,3 +539,59 @@ for(auto i : vvv){
 //如果需要在任意位置插入、刪除元素，就選擇序列容器如list、forward_list
 //如果需要有序、唯一的元素，選關聯容器，如set、map
 //如果需要無序、唯一的元素，選無序關聯容器，如unordered_set、unordered_map
+
+
+/*//bsearch的自寫範例邏輯:
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int binarySearch(vector<int>& arr, int target) {
+    int left = 0;
+    int right = arr.size() - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target) {
+            return mid;
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return -1; // 目标元素不在数组中
+}
+
+int main() {
+    vector<int> arr = {1, 3, 4, 5, 7, 9, 10, 12, 15, 17};
+    int target = 15;
+    int index = binarySearch(arr, target);
+    if (index != -1) {
+        cout << "目标元素 " << target << " 在数组中的下标为 " << index << endl;
+    } else {
+        cout << "目标元素 " << target << " 不在数组中" << endl;
+    }
+    return 0;
+}
+*/
+/*//內建函式範例:
+int cmp(const void* a, const void* b) {
+    return *(int*)a - *(int*)b;
+}
+
+int main() {
+    int arr[] = {1, 3, 4, 5, 7, 9, 10, 12, 15, 17};
+    int n = sizeof(arr) / sizeof(int);
+    int key = 15;
+    int* ptr = (int*)std::bsearch(&key, arr, n, sizeof(int), cmp);
+    if (ptr != NULL) {
+        printf("%d found at position %d.\n", key, (int)(ptr - arr));
+    } else {
+        printf("%d not found.\n", key);
+    }
+    return 0;
+}
+*/
